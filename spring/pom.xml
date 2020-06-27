@@ -3,13 +3,164 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>proit-fullstack-test</artifactId>
-        <groupId>ru.proit</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.3.1.RELEASE</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>ru.proit</groupId>
     <artifactId>spring</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <org.jooq.version>3.13.2</org.jooq.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jooq</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jooq</groupId>
+                    <artifactId>jooq</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>2.0.1.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq</artifactId>
+            <version>${org.jooq.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-codegen-maven</artifactId>
+            <version>${org.jooq.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-meta</artifactId>
+            <version>${org.jooq.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.12</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.proit</groupId>
+            <artifactId>liquibase</artifactId>
+            <type>pom</type>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper</artifactId>
+            <version>2.3.8</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jooq</groupId>
+                <artifactId>jooq-codegen-maven</artifactId>
+                <version>${org.jooq.version}</version>
+
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.postgresql</groupId>
+                        <artifactId>postgresql</artifactId>
+                        <version>42.2.14</version>
+                    </dependency>
+                </dependencies>
+
+                <configuration>
+                    <jdbc>
+                        <driver>org.postgresql.Driver</driver>
+                        <url>jdbc:postgresql://localhost:5432/proit-fullstack-test-db</url>
+                        <username>postgres</username>
+                        <password>postgres</password>
+                    </jdbc>
+
+                    <generator>
+                        <strategy>
+                            <matchers>
+                                <tables>
+                                    <table>
+                                        <pojoClass>
+                                            <transform>PASCAL</transform>
+                                        </pojoClass>
+                                    </table>
+                                </tables>
+                            </matchers>
+                        </strategy>
+
+                        <database>
+                            <name>org.jooq.meta.postgres.PostgresDatabase</name>
+                            <includes>
+                                ORGANIZATION |
+                                WORKER |
+                                ORGANIZATION_ID_SEQ |
+                                WORKER_ID_SEQ
+                            </includes>
+
+                            <schemata>
+                                <schema>
+                                    <inputSchema>public</inputSchema>
+                                </schema>
+                            </schemata>
+                        </database>
+
+                        <target>
+                            <packageName>ru.proit.spring.generated</packageName>
+                            <directory>target/generated-sources/jooq</directory>
+                        </target>
+
+                        <generate>
+                            <pojos>true</pojos>
+                            <daos>true</daos>
+                            <validationAnnotations>true</validationAnnotations>
+                            <springAnnotations>true</springAnnotations>
+                            <globalObjectReferences>true</globalObjectReferences>
+                            <javaTimeTypes>true</javaTimeTypes>
+                        </generate>
+                    </generator>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 
 </project>
