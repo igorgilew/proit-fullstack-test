@@ -10,7 +10,50 @@
         <tagDatabase tag="changelog-1.0"/>
     </changeSet>
 
+    <changeSet id="20200628-02" author="igorgilew">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="ORGANIZATION" schemaName="public"/>
+            </not>
+        </preConditions>
+        <comment>Liquibase. Create table ORGANIZATION</comment>
+        <sql>
+            create table ORGANIZATION(
+                id serial primary key,
+                idd int not null,
+                name varchar(100) not null,
+                head_idd int,
+                create_date timestamp(0),
+                delete_date timestamp(0)
+            );
+        </sql>
+        <rollback>
+            drop table ORGANIZATION;
+        </rollback>
+    </changeSet>
 
-
+    <changeSet id="20200628-03" author="igorgilew">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="WORKER" schemaName="public"/>
+            </not>
+        </preConditions>
+        <comment>Liquibase. Create table WORKER</comment>
+        <sql>
+            create table WORKER(
+                id serial primary key,
+                idd int not null,
+                first_name varchar(100) not null,
+                second_name varchar(100) not null,
+                org_idd int not null,
+                boss_idd int,
+                create_date timestamp(0),
+                delete_date timestamp(0)
+            );
+        </sql>
+        <rollback>
+            drop table WORKER;
+        </rollback>
+    </changeSet>
 
 </databaseChangeLog>
