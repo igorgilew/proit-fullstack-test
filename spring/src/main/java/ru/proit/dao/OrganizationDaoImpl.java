@@ -8,6 +8,7 @@ import ru.proit.spring.generated.tables.pojos.Organization;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static ru.proit.spring.generated.tables.Organization.ORGANIZATION;
 import static ru.proit.spring.generated.tables.Worker.WORKER;
@@ -44,6 +45,20 @@ public class OrganizationDaoImpl extends OrganizationDao {
         return jooq.selectCount()
                 .from(ORGANIZATION).where(ORGANIZATION.HEAD_IDD.eq(idd).and(ORGANIZATION.DELETE_DATE.isNull()))
                 .fetchOne(0, Integer.class);
+    }
+
+    public List<Organization> getAllActiveHeadOrg(){
+        return jooq.select(ORGANIZATION.fields())
+                .from(ORGANIZATION)
+                .where(ORGANIZATION.DELETE_DATE.isNull().and(ORGANIZATION.HEAD_IDD.isNull()))
+                .fetchInto(Organization.class);
+    }
+
+    public List<Organization> getAllActiveByHeadIdd(Integer headIdd){
+        return jooq.select(ORGANIZATION.fields())
+                .from(ORGANIZATION)
+                .where(ORGANIZATION.HEAD_IDD.eq(headIdd).and(ORGANIZATION.DELETE_DATE.isNull()))
+                .fetchInto(Organization.class);
     }
 
 }

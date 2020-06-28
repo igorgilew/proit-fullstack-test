@@ -1,6 +1,7 @@
 package ru.proit.service;
 
 import lombok.AllArgsConstructor;
+import lombok.var;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.proit.dao.OrganizationDaoImpl;
@@ -11,6 +12,7 @@ import ru.proit.dto.PageParams;
 import ru.proit.dto.organization.OrganizationDto;
 import ru.proit.dto.organization.OrganizationListDto;
 import ru.proit.dto.organization.OrganizationParams;
+import ru.proit.dto.organization.OrganizationTreeDto;
 import ru.proit.mapping.MappingService;
 import ru.proit.spring.generated.tables.pojos.Organization;
 
@@ -76,5 +78,22 @@ public class OrganizationService {
         orgDao.update(org);
     }
 
+    public List<OrganizationTreeDto> getOrgTree() {
+        var allActiveHeadOrg = mappingService.mapList(orgDao.getAllActiveHeadOrg(), OrganizationTreeDto.class);
+        allActiveHeadOrg.forEach(this::getChildren);
+        return allActiveHeadOrg;
+    }
+
+    private void getChildren(OrganizationTreeDto org){
+        var children = mappingService.mapList(orgDao.getAllActiveByHeadIdd(org.getIdd()), OrganizationTreeDto.class);
+        if(children.size()==0) return;
+        org.setChildren(children);
+        children.forEach(child->{
+            child.getHead().setName(org.getName());
+            child.getHead().setCreateDate(org.getCreateDate());
+            getChildren(child);
+        });
+
+    }
 
 }

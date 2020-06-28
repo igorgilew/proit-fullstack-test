@@ -7,7 +7,10 @@ import ru.proit.dto.PageParams;
 import ru.proit.dto.organization.OrganizationDto;
 import ru.proit.dto.organization.OrganizationListDto;
 import ru.proit.dto.organization.OrganizationParams;
+import ru.proit.dto.organization.OrganizationTreeDto;
 import ru.proit.service.OrganizationService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/org", produces = "application/json; charset=UTF-8")
@@ -37,4 +40,8 @@ public class OrganizationController {
         orgService.delete(idd);
     }
 
+    @GetMapping("/tree")
+    public List<OrganizationTreeDto> getOrgTree(){
+        return orgService.getOrgTree();
+    }
 }
