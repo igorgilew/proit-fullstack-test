@@ -3,8 +3,7 @@ package ru.proit.dto.organization;
 import lombok.Getter;
 import lombok.Setter;
 import ru.proit.dto.BaseDto;
-import ru.proit.dto.worker.WorkerDto;
-import ru.proit.spring.generated.tables.daos.OrganizationDao;
+import ru.proit.dto.worker.WorkerListDto;
 
 import java.util.List;
 
@@ -12,9 +11,12 @@ import java.util.List;
 @Setter
 public class OrganizationDto extends BaseDto<OrganizationHistoryDto> {
     private String name;
-    //головная организация
-    private OrganizationDao head;
 
+    //головная организация
+    private OrganizationDto head;
     //дочерние организации
-    private List<OrganizationDao> children;
+    private List<OrganizationListDto> children;
+    //список сотрудников
+    private List<WorkerListDto> workers;
+
 }
