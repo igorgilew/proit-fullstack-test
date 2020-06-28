@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static ru.proit.spring.generated.tables.Organization.ORGANIZATION;
+import static ru.proit.spring.generated.tables.Worker.WORKER;
 
 
 @Repository
@@ -37,6 +38,12 @@ public class OrganizationDaoImpl extends OrganizationDao {
 
         org.setCreateDate(LocalDateTime.now());
         super.insert(org);
+    }
+
+    public Integer getCountActiveChildrenOrgByIdd(Integer idd){
+        return jooq.selectCount()
+                .from(ORGANIZATION).where(ORGANIZATION.HEAD_IDD.eq(idd).and(ORGANIZATION.DELETE_DATE.isNull()))
+                .fetchOne(0, Integer.class);
     }
 
 }

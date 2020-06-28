@@ -32,5 +32,9 @@ public class OrganizationController {
         return orgService.update(idd, organizationDto);
     }
 
+    @DeleteMapping("/{idd}")
+    public void delete(@PathVariable("idd") Integer idd){
+        orgService.delete(idd);
+    }
 
 }

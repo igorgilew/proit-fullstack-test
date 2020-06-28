@@ -1,7 +1,6 @@
 package ru.proit.service;
 
 import lombok.AllArgsConstructor;
-import lombok.var;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.proit.dao.OrganizationDaoImpl;
@@ -62,5 +61,20 @@ public class OrganizationService {
 
         return orgDto;
     }
+
+    @Transactional
+    public void delete(Integer idd) {
+        Organization org = orgDao.getActiveByIdd(idd);
+
+
+        if(orgDao.getCountActiveChildrenOrgByIdd(org.getIdd())>0){
+            //кидать свой эксепшн
+            throw new RuntimeException("");
+        }
+
+        org.setDeleteDate(LocalDateTime.now());
+        orgDao.update(org);
+    }
+
 
 }
