@@ -1,10 +1,7 @@
 package ru.proit.controller;
 
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.proit.dto.Page;
 import ru.proit.dto.PageParams;
 import ru.proit.dto.organization.OrganizationDto;
@@ -28,5 +25,12 @@ public class OrganizationController {
     public void create(@RequestBody OrganizationDto organizationDto) {
         orgService.create(organizationDto);
     }
+
+    @PatchMapping("/{idd}")
+    public OrganizationDto update(@PathVariable("idd") Integer idd,
+                                  @RequestBody OrganizationDto organizationDto) {
+        return orgService.update(idd, organizationDto);
+    }
+
 
 }

@@ -15,6 +15,7 @@ import ru.proit.dto.organization.OrganizationParams;
 import ru.proit.mapping.MappingService;
 import ru.proit.spring.generated.tables.pojos.Organization;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -26,6 +27,7 @@ public class OrganizationService {
     private MappingService mappingService;
     private WorkerDaoImpl workerDao;
 
+
     public Page<OrganizationListDto> getOrgsByParams(PageParams<OrganizationParams> pageParams) {
         Page<Organization> page = orgListDao.list(pageParams);
         List<OrganizationListDto> list = mappingService.mapList(page.getList(), OrganizationListDto.class);
@@ -36,6 +38,29 @@ public class OrganizationService {
     @Transactional
     public void create(OrganizationDto organizationDto) {
         orgDao.create(mappingService.map(organizationDto, Organization.class));
+    }
+
+    @Transactional
+    public OrganizationDto update(Integer idd, OrganizationDto organizationDto) {
+        Organization org = orgDao.getActiveByIdd(idd);
+
+        if(org == null){
+            //сделать свои exceptions
+            throw new RuntimeException("");
+        }
+
+        org.setDeleteDate(LocalDateTime.now());
+        orgDao.update(org);
+
+        Organization newOrg = mappingService.map(organizationDto, Organization.class);
+        newOrg.setIdd(org.getIdd());
+
+        orgDao.create(newOrg);
+
+        OrganizationDto orgDto = mappingService.map(newOrg, OrganizationDto.class);
+        orgDto.setHead(mappingService.map(orgDao.getActiveByIdd(newOrg.getHeadIdd()), OrganizationDto.class));
+
+        return orgDto;
     }
 
 }

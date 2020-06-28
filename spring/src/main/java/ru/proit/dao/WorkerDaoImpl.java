@@ -18,7 +18,7 @@ public class WorkerDaoImpl extends WorkerDao {
 
     public Integer getCountWorkersByOrgIdd(Integer idd){
         return jooq.selectCount()
-                .from(WORKER).where(WORKER.ORG_IDD.equal(idd))
+                .from(WORKER).where(WORKER.ORG_IDD.eq(idd))
                 .fetchOne(0, Integer.class);
     }
 
