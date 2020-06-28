@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.proit.dto.Page;
 import ru.proit.dto.PageParams;
+import ru.proit.dto.organization.OrganizationDto;
 import ru.proit.dto.organization.OrganizationListDto;
 import ru.proit.dto.organization.OrganizationParams;
 import ru.proit.service.OrganizationService;
@@ -21,6 +22,11 @@ public class OrganizationController {
     @PostMapping("/list")
     public Page<OrganizationListDto> getList(@RequestBody PageParams<OrganizationParams> pageParams){
         return orgService.getOrgsByParams(pageParams);
+    }
+
+    @PostMapping
+    public void create(@RequestBody OrganizationDto organizationDto) {
+        orgService.create(organizationDto);
     }
 
 }

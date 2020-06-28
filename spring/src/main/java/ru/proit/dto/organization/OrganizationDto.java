@@ -11,7 +11,6 @@ import java.util.List;
 @Setter
 public class OrganizationDto extends BaseDto<OrganizationHistoryDto> {
     private String name;
-
     //головная организация
     private OrganizationDto head;
     //дочерние организации
