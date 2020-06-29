@@ -74,6 +74,10 @@ public class OrganizationService {
             throw new RuntimeException("");
         }
 
+        if(workerDao.getCountWorkersByOrgIdd(org.getIdd())>0){
+            throw new RuntimeException("");
+        }
+
         org.setDeleteDate(LocalDateTime.now());
         orgDao.update(org);
     }

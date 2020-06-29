@@ -9,14 +9,13 @@ import ru.proit.dao.WorkerListDao;
 import ru.proit.dto.Page;
 import ru.proit.dto.PageParams;
 import ru.proit.dto.organization.OrganizationDto;
-import ru.proit.dto.organization.OrganizationListDto;
 import ru.proit.dto.worker.WorkerDto;
 import ru.proit.dto.worker.WorkerListDto;
 import ru.proit.dto.worker.WorkerParams;
 import ru.proit.mapping.MappingService;
-import ru.proit.spring.generated.tables.pojos.Organization;
 import ru.proit.spring.generated.tables.pojos.Worker;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -44,13 +43,49 @@ public class WorkerService {
 
     @Transactional
         public void create(WorkerDto workerDto) {
-
+        //сделать свои эксепшены
         if(workerDto.getBossIdd() != null &&
-                workerDao.checkHeadWorkerByOrgIdd(workerDto.getBossIdd().getIdd(),
+                workerDao.isBossOfWorkerHeadOfSameOrg(workerDto.getBossIdd().getIdd(),
                         workerDto.getOrgIdd().getIdd()) == 0)
             throw new RuntimeException("");
-        //замутить проверки  можно выбрать руководителя только из этой организации
+
         workerDao.create(mappingService.map(workerDto, Worker.class));
     }
 
+    @Transactional
+    public WorkerDto update(Integer idd, WorkerDto workerDto) {
+
+        Worker worker = workerDao.getActiveWorkerByIdd(idd);
+
+        if(worker == null) throw new RuntimeException("");
+
+        //сделать свои эксепшены
+        if(workerDto.getBossIdd() != null &&
+                workerDao.isBossOfWorkerHeadOfSameOrg(workerDto.getBossIdd().getIdd(),
+                        workerDto.getOrgIdd().getIdd()) == 0)
+            throw new RuntimeException("");
+
+        //все подчиненные должны быть из одной организации,
+        // а мы можем поменять организацию у руководителя
+        if(workerDao.isWorkerHasSubject(worker.getIdd())) throw new RuntimeException("");
+
+        //все проверки пройдены
+        worker.setDeleteDate(LocalDateTime.now());
+
+        workerDao.update(worker);
+
+        Worker newWorker = mappingService.map(workerDto, Worker.class);
+        newWorker.setIdd(worker.getIdd());
+
+        workerDao.create(newWorker);
+
+        WorkerDto updatedWorkerDto = mappingService.map(newWorker, WorkerDto.class);
+        updatedWorkerDto.setOrgIdd(mappingService.map(orgDao.getActiveByIdd(newWorker.getOrgIdd()), OrganizationDto.class));
+
+        if(newWorker.getBossIdd() != null){
+            updatedWorkerDto.setBossIdd(mappingService.map(workerDao.getActiveWorkerByIdd(newWorker.getBossIdd()), WorkerDto.class));
+        }
+
+        return updatedWorkerDto;
+    }
 }

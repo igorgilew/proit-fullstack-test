@@ -27,14 +27,16 @@ public class WorkerDaoImpl extends WorkerDao {
 
     public Integer getCountWorkersByOrgIdd(Integer idd){
         return jooq.selectCount()
-                .from(WORKER).where(WORKER.ORG_IDD.eq(idd))
+                .from(WORKER).where(WORKER.ORG_IDD.eq(idd)
+                        .and(WORKER.DELETE_DATE.isNull()))
                 .fetchOne(0, Integer.class);
     }
 
     public Worker getActiveWorkerByIdd(Integer idd) {
         return jooq.select(WORKER.fields())
                 .from(WORKER)
-                .where(WORKER.IDD.eq(idd).and(WORKER.DELETE_DATE.isNull()))
+                .where(WORKER.IDD.eq(idd)
+                        .and(WORKER.DELETE_DATE.isNull()))
                 .fetchOneInto(Worker.class);
     }
 
@@ -49,12 +51,21 @@ public class WorkerDaoImpl extends WorkerDao {
         super.insert(worker);
     }
 
-    public Integer checkHeadWorkerByOrgIdd(Integer headIdd, Integer orgIdd){
+    public Integer isBossOfWorkerHeadOfSameOrg(Integer headIdd, Integer orgIdd){
         return jooq.selectCount()
                 .from(WORKER)
                 .where(WORKER.ORG_IDD.eq(orgIdd)
-                        .and(WORKER.IDD.eq(headIdd)))
+                        .and(WORKER.IDD.eq(headIdd))
+                        .and(WORKER.DELETE_DATE.isNull()))
                 .fetchOne(0, Integer.class);
     }
 
+    //проверка на то, есть ли у работника подчиненные
+    public boolean isWorkerHasSubject(Integer idd){
+        Integer countSubject = jooq.selectCount()
+                .from(WORKER)
+                .where(WORKER.BOSS_IDD.eq(idd).and(WORKER.DELETE_DATE.isNull()))
+                .fetchOne(0, Integer.class);
+        return countSubject != 0;
+    }
 }
