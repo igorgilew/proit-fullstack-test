@@ -2,6 +2,7 @@ package ru.proit.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.proit.dao.OrganizationDaoImpl;
 import ru.proit.dao.WorkerDaoImpl;
 import ru.proit.dao.WorkerListDao;
@@ -40,4 +41,16 @@ public class WorkerService {
                 });
         return new Page<>(list, page.getTotalCount());
     }
+
+    @Transactional
+        public void create(WorkerDto workerDto) {
+
+        if(workerDto.getBossIdd() != null &&
+                workerDao.checkHeadWorkerByOrgIdd(workerDto.getBossIdd().getIdd(),
+                        workerDto.getOrgIdd().getIdd()) == 0)
+            throw new RuntimeException("");
+        //замутить проверки  можно выбрать руководителя только из этой организации
+        workerDao.create(mappingService.map(workerDto, Worker.class));
+    }
+
 }

@@ -5,9 +5,12 @@ import org.springframework.stereotype.Repository;
 import ru.proit.dto.Page;
 import ru.proit.dto.PageParams;
 import ru.proit.dto.worker.WorkerParams;
+import ru.proit.spring.generated.Sequences;
 import ru.proit.spring.generated.tables.daos.WorkerDao;
 import ru.proit.spring.generated.tables.pojos.Organization;
 import ru.proit.spring.generated.tables.pojos.Worker;
+
+import java.time.LocalDateTime;
 
 import static ru.proit.spring.generated.tables.Organization.ORGANIZATION;
 import static ru.proit.spring.generated.tables.Worker.WORKER;
@@ -33,6 +36,25 @@ public class WorkerDaoImpl extends WorkerDao {
                 .from(WORKER)
                 .where(WORKER.IDD.eq(idd).and(WORKER.DELETE_DATE.isNull()))
                 .fetchOneInto(Worker.class);
+    }
+
+    public void create(Worker worker) {
+        worker.setId(jooq.nextval(Sequences.WORKER_ID_SEQ));
+
+        if(worker.getIdd() == null){
+            worker.setIdd(worker.getId());
+        }
+
+        worker.setCreateDate(LocalDateTime.now());
+        super.insert(worker);
+    }
+
+    public Integer checkHeadWorkerByOrgIdd(Integer headIdd, Integer orgIdd){
+        return jooq.selectCount()
+                .from(WORKER)
+                .where(WORKER.ORG_IDD.eq(orgIdd)
+                        .and(WORKER.IDD.eq(headIdd)))
+                .fetchOne(0, Integer.class);
     }
 
 }

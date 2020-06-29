@@ -7,8 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.proit.dto.Page;
 import ru.proit.dto.PageParams;
-import ru.proit.dto.organization.OrganizationListDto;
-import ru.proit.dto.organization.OrganizationParams;
+import ru.proit.dto.worker.WorkerDto;
 import ru.proit.dto.worker.WorkerListDto;
 import ru.proit.dto.worker.WorkerParams;
 import ru.proit.service.WorkerService;
@@ -24,5 +23,11 @@ public class WorkerController {
     public Page<WorkerListDto> getList(@RequestBody PageParams<WorkerParams> pageParams){
         return workerService.getWorkersByParams(pageParams);
     }
+
+    @PostMapping
+    public void create(@RequestBody WorkerDto workerDto){
+        workerService.create(workerDto);
+    }
+
 
 }
