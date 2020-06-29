@@ -12,8 +12,8 @@ import java.util.List;
 public class WorkerDto extends BaseDto<WorkerHistoryDto> {
     private String firstName;
     private String secondName;
-    private OrganizationDto organization;
-    private WorkerDto boss;
+    private OrganizationDto orgIdd;
+    private WorkerDto bossIdd;
 
     private List<WorkerHistoryDto> history;
     private List<WorkerListDto> children;

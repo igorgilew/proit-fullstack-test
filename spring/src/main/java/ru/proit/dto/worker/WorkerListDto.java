@@ -10,6 +10,6 @@ import ru.proit.dto.organization.OrganizationDto;
 public class WorkerListDto extends BaseListDto {
     private String firstName;
     private String secondName;
-    private OrganizationDto organization;
-    private WorkerDto boss;
+    private OrganizationDto orgIdd;
+    private WorkerDto bossIdd;
 }
