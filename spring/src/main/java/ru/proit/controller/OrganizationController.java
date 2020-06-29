@@ -9,6 +9,7 @@ import ru.proit.dto.organization.OrganizationListDto;
 import ru.proit.dto.organization.OrganizationParams;
 import ru.proit.dto.organization.OrganizationTreeDto;
 import ru.proit.service.OrganizationService;
+import ru.proit.service.impl.OrganizationServiceImpl;
 
 import java.util.List;
 

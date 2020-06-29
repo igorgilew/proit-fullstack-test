@@ -4,12 +4,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.proit.dto.Page;
 import ru.proit.dto.PageParams;
-import ru.proit.dto.organization.OrganizationTreeDto;
 import ru.proit.dto.worker.WorkerDto;
 import ru.proit.dto.worker.WorkerListDto;
 import ru.proit.dto.worker.WorkerParams;
 import ru.proit.dto.worker.WorkerTreeDto;
 import ru.proit.service.WorkerService;
+import ru.proit.service.impl.WorkerServiceImpl;
 
 import java.util.List;
 
