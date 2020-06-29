@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import ru.proit.dto.BaseDto;
 import ru.proit.dto.worker.WorkerListDto;
+import ru.proit.exception.EntityIllegalArgumentException;
 
 import java.util.List;
 

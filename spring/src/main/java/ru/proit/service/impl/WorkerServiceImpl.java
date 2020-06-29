@@ -15,6 +15,10 @@ import ru.proit.dto.worker.WorkerDto;
 import ru.proit.dto.worker.WorkerListDto;
 import ru.proit.dto.worker.WorkerParams;
 import ru.proit.dto.worker.WorkerTreeDto;
+import ru.proit.exception.EntityConflictException;
+import ru.proit.exception.EntityHasDetailsException;
+import ru.proit.exception.EntityIllegalArgumentException;
+import ru.proit.exception.EntityNotFoundException;
 import ru.proit.mapping.MappingService;
 import ru.proit.service.WorkerService;
 import ru.proit.spring.generated.tables.pojos.Organization;
@@ -34,7 +38,6 @@ public class WorkerServiceImpl implements WorkerService {
     public Page<WorkerListDto> getWorkersByParams(PageParams<WorkerParams> pageParams) {
         Page<Worker> page = workerListDao.list(pageParams);
         List<WorkerListDto> list = mappingService.mapList(page.getList(), WorkerListDto.class);
-        //list.forEach(org->org.setCountWorkers(workerDao.getCountWorkersByOrgIdd(org.getIdd())));
         list.forEach(
                 worker->
                 {
@@ -46,33 +49,60 @@ public class WorkerServiceImpl implements WorkerService {
         return new Page<>(list, page.getTotalCount());
     }
 
-    @Transactional
-    public void create(WorkerDto workerDto) {
-        //сделать свои эксепшены
+    private void validateWorkerDto(WorkerDto workerDto){
+        if(workerDto.getBossIdd() != null){
+            Worker boss = workerDao.getActiveWorkerByIdd(workerDto.getBossIdd().getIdd());
+            if(boss == null){
+                throw new EntityNotFoundException("Worker", workerDto.getBossIdd().getIdd());
+            }
+        }
+
         if(workerDto.getBossIdd() != null &&
                 workerDao.isBossOfWorkerHeadOfSameOrg(workerDto.getBossIdd().getIdd(),
                         workerDto.getOrgIdd().getIdd()) == 0)
-            throw new RuntimeException("");
+            throw new EntityConflictException("Руководитель работника должен быть из той же организации");
 
+
+        if(workerDto.getOrgIdd() == null){
+            throw new EntityIllegalArgumentException("Для работника необходимо указывать организацию");
+        }
+
+        Organization org = orgDao.getActiveByIdd(workerDto.getOrgIdd().getIdd());
+
+        if(org == null){
+            throw new EntityNotFoundException("Organization", workerDto.getOrgIdd().getIdd());
+        }
+
+        if(workerDto.getFirstName().isEmpty()
+                || workerDto.getSecondName().isEmpty()
+                || workerDto.getFirstName() == null
+                || workerDto.getSecondName() == null){
+            throw new EntityIllegalArgumentException("Работник должен иметь имя и фамилию");
+        }
+
+    }
+
+    @Transactional
+    public void create(WorkerDto workerDto) {
+
+        validateWorkerDto(workerDto);
         workerDao.create(mappingService.map(workerDto, Worker.class));
     }
 
     @Transactional
     public WorkerDto update(Integer idd, WorkerDto workerDto) {
 
+        validateWorkerDto(workerDto);
+
         Worker worker = workerDao.getActiveWorkerByIdd(idd);
 
-        if(worker == null) throw new RuntimeException("");
-
-        //сделать свои эксепшены
-        if(workerDto.getBossIdd() != null &&
-                workerDao.isBossOfWorkerHeadOfSameOrg(workerDto.getBossIdd().getIdd(),
-                        workerDto.getOrgIdd().getIdd()) == 0)
-            throw new RuntimeException("");
+        if(worker == null)
+            throw new EntityNotFoundException("Worker", idd);
 
         //все подчиненные должны быть из одной организации,
         // а мы можем поменять организацию у руководителя
-        if(workerDao.isWorkerHasSubject(worker.getIdd())) throw new RuntimeException("");
+        if(!worker.getOrgIdd().equals(workerDto.getOrgIdd().getIdd()) && workerDao.isWorkerHasSubject(worker.getIdd()))
+            throw new EntityHasDetailsException("Нельзя менять организацию у сотрудника с подчиненными");
 
         //все проверки пройдены
         worker.setDeleteDate(LocalDateTime.now());
@@ -98,9 +128,13 @@ public class WorkerServiceImpl implements WorkerService {
     public void delete(Integer idd) {
         Worker worker = workerDao.getActiveWorkerByIdd(idd);
 
+        if(worker == null){
+            throw new EntityNotFoundException("Worker", idd);
+        }
+
         if(workerDao.isWorkerHasSubject(idd)){
             //кидать свой эксепшн
-            throw new RuntimeException("");
+            throw new EntityHasDetailsException("Нельзя удалить сотрудника с подчиненными");
         }
 
         worker.setDeleteDate(LocalDateTime.now());

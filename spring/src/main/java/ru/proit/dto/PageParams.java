@@ -6,6 +6,6 @@ import java.io.Serializable;
 @Data
 public class PageParams<T> implements Serializable {
     private int start;
-    private int page;
+    private int page = 5;
     private T params;
 }

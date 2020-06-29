@@ -13,6 +13,9 @@ import ru.proit.dto.organization.OrganizationDto;
 import ru.proit.dto.organization.OrganizationListDto;
 import ru.proit.dto.organization.OrganizationParams;
 import ru.proit.dto.organization.OrganizationTreeDto;
+import ru.proit.exception.EntityHasDetailsException;
+import ru.proit.exception.EntityIllegalArgumentException;
+import ru.proit.exception.EntityNotFoundException;
 import ru.proit.mapping.MappingService;
 import ru.proit.service.OrganizationService;
 import ru.proit.spring.generated.tables.pojos.Organization;
@@ -39,7 +42,21 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Transactional
     public void create(OrganizationDto organizationDto) {
+
+        validateOrgDto(organizationDto);
+
         orgDao.create(mappingService.map(organizationDto, Organization.class));
+    }
+
+    private void validateOrgDto(OrganizationDto organizationDto){
+        if(organizationDto.getName() == null || organizationDto.getName().isEmpty()){
+            throw new EntityIllegalArgumentException("Организация должна иметь имя");
+        };
+
+        Organization organization = orgDao.getActiveByIdd(organizationDto.getHead().getIdd());
+        if(organization == null){
+            throw new EntityNotFoundException("Organization", organizationDto.getHead().getIdd());
+        }
     }
 
     @Transactional
@@ -47,18 +64,23 @@ public class OrganizationServiceImpl implements OrganizationService {
         Organization org = orgDao.getActiveByIdd(idd);
 
         if(org == null){
-            //сделать свои exceptions
-            throw new RuntimeException("");
-        }
 
+            throw new EntityNotFoundException("Organization", idd);
+        }
+        //проверяем изменеия
+        validateOrgDto(organizationDto);
+
+        //помечаем старую запись как удаленную
         org.setDeleteDate(LocalDateTime.now());
         orgDao.update(org);
 
+        //создаем новую запись
         Organization newOrg = mappingService.map(organizationDto, Organization.class);
         newOrg.setIdd(org.getIdd());
 
         orgDao.create(newOrg);
 
+        //создаем новую дто в ответ
         OrganizationDto orgDto = mappingService.map(newOrg, OrganizationDto.class);
         orgDto.setHead(mappingService.map(orgDao.getActiveByIdd(newOrg.getHeadIdd()), OrganizationDto.class));
 
@@ -69,14 +91,18 @@ public class OrganizationServiceImpl implements OrganizationService {
     public void delete(Integer idd) {
         Organization org = orgDao.getActiveByIdd(idd);
 
+        if(org == null){
+            throw new EntityNotFoundException("Organization", idd);
+        }
 
         if(orgDao.getCountActiveChildrenOrgByIdd(org.getIdd())>0){
-            //кидать свой эксепшн
-            throw new RuntimeException("");
+
+            throw new EntityHasDetailsException("Удаляемая организация имеет дочерние организации");
         }
 
         if(workerDao.getCountWorkersByOrgIdd(org.getIdd())>0){
-            throw new RuntimeException("");
+            throw new EntityHasDetailsException("Удаляемая организация имеет сотрудников");
+
         }
 
         org.setDeleteDate(LocalDateTime.now());
