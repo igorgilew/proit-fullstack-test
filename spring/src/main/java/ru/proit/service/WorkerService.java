@@ -1,6 +1,7 @@
 package ru.proit.service;
 
 import lombok.AllArgsConstructor;
+import lombok.var;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.proit.dao.OrganizationDaoImpl;
@@ -9,10 +10,13 @@ import ru.proit.dao.WorkerListDao;
 import ru.proit.dto.Page;
 import ru.proit.dto.PageParams;
 import ru.proit.dto.organization.OrganizationDto;
+import ru.proit.dto.organization.OrganizationTreeDto;
 import ru.proit.dto.worker.WorkerDto;
 import ru.proit.dto.worker.WorkerListDto;
 import ru.proit.dto.worker.WorkerParams;
+import ru.proit.dto.worker.WorkerTreeDto;
 import ru.proit.mapping.MappingService;
+import ru.proit.spring.generated.tables.pojos.Organization;
 import ru.proit.spring.generated.tables.pojos.Worker;
 
 import java.time.LocalDateTime;
@@ -88,4 +92,39 @@ public class WorkerService {
 
         return updatedWorkerDto;
     }
+
+    @Transactional
+    public void delete(Integer idd) {
+        Worker worker = workerDao.getActiveWorkerByIdd(idd);
+
+        if(workerDao.isWorkerHasSubject(idd)){
+            //кидать свой эксепшн
+            throw new RuntimeException("");
+        }
+
+        worker.setDeleteDate(LocalDateTime.now());
+        workerDao.update(worker);
+    }
+
+    public List<WorkerTreeDto> getWorkersTree() {
+        var allActiveBosses = mappingService.mapList(workerDao.getAllActiveBosses(), WorkerTreeDto.class);
+        allActiveBosses.forEach(this::getChildren);
+        return allActiveBosses;
+    }
+
+    private void getChildren(WorkerTreeDto boss){
+        var children = mappingService.mapList(workerDao.getAllActiveByBossIdd(boss.getIdd()), WorkerTreeDto.class);
+
+        if(children.size()==0) return;
+        boss.setChildren(children);
+        children.forEach(child->{
+            child.getBossIdd().setFirstName(boss.getFirstName());
+            child.getBossIdd().setSecondName(boss.getSecondName());
+            child.getBossIdd().setCreateDate(boss.getCreateDate());
+            getChildren(child);
+        });
+
+    }
+
+
 }
