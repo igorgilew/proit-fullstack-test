@@ -51,6 +51,10 @@ public class WorkerServiceImpl implements WorkerService {
 
     private void validateWorkerDto(WorkerDto workerDto){
         if(workerDto.getBossIdd() != null){
+            if(workerDto.getBossIdd().getIdd() == null){
+                throw new EntityIllegalArgumentException("Не был указан идентификатор руководителя");
+            }
+
             Worker boss = workerDao.getActiveWorkerByIdd(workerDto.getBossIdd().getIdd());
             if(boss == null){
                 throw new EntityNotFoundException("Worker", workerDto.getBossIdd().getIdd());

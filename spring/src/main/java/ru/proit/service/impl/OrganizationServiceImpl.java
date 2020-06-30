@@ -51,7 +51,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     private void validateOrgDto(OrganizationDto organizationDto){
         if(organizationDto.getName() == null || organizationDto.getName().isEmpty()){
             throw new EntityIllegalArgumentException("Организация должна иметь имя");
-        };
+        }
 
         Organization organization = orgDao.getActiveByIdd(organizationDto.getHead().getIdd());
         if(organization == null){
