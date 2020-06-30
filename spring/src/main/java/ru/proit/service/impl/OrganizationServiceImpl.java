@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.var;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.proit.annotation.Loggable;
 import ru.proit.dao.OrganizationDaoImpl;
 import ru.proit.dao.OrganizationListDao;
 import ru.proit.dao.WorkerDaoImpl;
@@ -33,6 +34,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     private WorkerDaoImpl workerDao;
 
 
+    @Loggable
     public Page<OrganizationListDto> getOrgsByParams(PageParams<OrganizationParams> pageParams) {
         Page<Organization> page = orgListDao.list(pageParams);
         List<OrganizationListDto> list = mappingService.mapList(page.getList(), OrganizationListDto.class);
@@ -59,6 +61,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         }
     }
 
+    @Loggable
     @Transactional
     public OrganizationDto update(Integer idd, OrganizationDto organizationDto) {
         Organization org = orgDao.getActiveByIdd(idd);
