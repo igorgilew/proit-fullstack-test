@@ -20,4 +20,8 @@ public interface OrganizationService {
     void delete(Integer idd);
 
     List<OrganizationTreeDto> getOrgTree();
+
+    Page<OrganizationListDto> getAll();
+
+    OrganizationDto getOrgByIdd(Integer idd);
 }

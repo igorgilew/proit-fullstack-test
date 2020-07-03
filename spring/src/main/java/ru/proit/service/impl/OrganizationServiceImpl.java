@@ -1,6 +1,7 @@
 package ru.proit.service.impl;
 
 import lombok.AllArgsConstructor;
+import lombok.val;
 import lombok.var;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,10 +56,20 @@ public class OrganizationServiceImpl implements OrganizationService {
             throw new EntityIllegalArgumentException("Организация должна иметь имя");
         }
 
-        Organization organization = orgDao.getActiveByIdd(organizationDto.getHead().getIdd());
-        if(organization == null){
-            throw new EntityNotFoundException("Organization", organizationDto.getHead().getIdd());
+
+        if(organizationDto.getHead() != null){
+
+            if(organizationDto.getHead().getIdd() == null){
+                throw new EntityIllegalArgumentException("Головная организация должна иметь idd");
+            }
+
+            Organization organization = orgDao.getActiveByIdd(organizationDto.getHead().getIdd());
+            if(organization == null){
+                throw new EntityNotFoundException("Organization", organizationDto.getHead().getIdd());
+            }
         }
+
+
     }
 
     @Loggable
@@ -72,6 +83,12 @@ public class OrganizationServiceImpl implements OrganizationService {
         }
         //проверяем изменеия
         validateOrgDto(organizationDto);
+
+        if(orgDao.getCountActiveChildrenOrgByIdd(org.getIdd())>0){
+
+            throw new EntityHasDetailsException("Удаляемая организация имеет дочерние организации");
+        }
+
 
         //помечаем старую запись как удаленную
         org.setDeleteDate(LocalDateTime.now());
@@ -112,10 +129,29 @@ public class OrganizationServiceImpl implements OrganizationService {
         orgDao.update(org);
     }
 
+    @Loggable
     public List<OrganizationTreeDto> getOrgTree() {
         var allActiveHeadOrg = mappingService.mapList(orgDao.getAllActiveHeadOrg(), OrganizationTreeDto.class);
         allActiveHeadOrg.forEach(this::getChildren);
         return allActiveHeadOrg;
+    }
+
+    @Override
+    public Page<OrganizationListDto> getAll() {
+
+        val list = mappingService.mapList(orgDao.findAllActive(), OrganizationListDto.class);
+        return new Page<>(list, (long) list.size());
+    }
+
+    @Override
+    public OrganizationDto getOrgByIdd(Integer idd) {
+         Organization org = orgDao.getActiveByIdd(idd);
+
+         if(org == null){
+             throw new EntityNotFoundException("Организация", idd);
+         }
+
+         return mappingService.map(org);
     }
 
     private void getChildren(OrganizationTreeDto org){

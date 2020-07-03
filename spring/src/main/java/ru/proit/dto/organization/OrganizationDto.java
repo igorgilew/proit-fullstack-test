@@ -1,5 +1,6 @@
 package ru.proit.dto.organization;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import ru.proit.dto.BaseDto;
@@ -14,9 +15,8 @@ public class OrganizationDto extends BaseDto<OrganizationHistoryDto> {
     private String name;
     //головная организация
     private OrganizationDto head;
-    //дочерние организации
-    private List<OrganizationTreeDto> children;
-    //список сотрудников
-    private List<WorkerListDto> workers;
-
+//    //дочерние организации
+//    private List<OrganizationTreeDto> children;
+//    //список сотрудников
+//    private List<WorkerListDto> workers;
 }

@@ -2,6 +2,8 @@ package ru.proit.dao;
 
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
+import ru.proit.dto.Page;
+import ru.proit.dto.organization.OrganizationListDto;
 import ru.proit.spring.generated.Sequences;
 import ru.proit.spring.generated.tables.daos.OrganizationDao;
 import ru.proit.spring.generated.tables.pojos.Organization;
@@ -61,4 +63,11 @@ public class OrganizationDaoImpl extends OrganizationDao {
                 .fetchInto(Organization.class);
     }
 
+    public List<Organization> findAllActive() {
+        return jooq.select(ORGANIZATION.fields())
+                .from(ORGANIZATION)
+                .where(ORGANIZATION.DELETE_DATE.isNull())
+                .fetchInto(Organization.class);
+
+    }
 }

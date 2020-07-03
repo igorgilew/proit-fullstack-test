@@ -9,10 +9,10 @@ import ru.proit.dto.worker.WorkerListDto;
 import ru.proit.dto.worker.WorkerParams;
 import ru.proit.dto.worker.WorkerTreeDto;
 import ru.proit.service.WorkerService;
-import ru.proit.service.impl.WorkerServiceImpl;
 
 import java.util.List;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping(value = "/workers", produces = "application/json; charset=UTF-8")
 @AllArgsConstructor
@@ -45,5 +45,15 @@ public class WorkerController {
         return workerService.getWorkersTree();
     }
 
+
+    @GetMapping("/list/{idd}")
+    public Page<WorkerListDto> getAllByOrgIdd(@PathVariable("idd") Integer orgIdd){
+        return workerService.getAll(orgIdd);
+    }
+
+    @GetMapping("/{idd}")
+    public WorkerDto getWorkerByIdd(@PathVariable("idd") Integer idd) {
+        return workerService.getWorkerByIdd(idd);
+    }
 
 }

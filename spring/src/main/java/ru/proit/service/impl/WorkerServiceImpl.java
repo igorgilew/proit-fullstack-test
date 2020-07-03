@@ -1,6 +1,7 @@
 package ru.proit.service.impl;
 
 import lombok.AllArgsConstructor;
+import lombok.val;
 import lombok.var;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,7 +12,6 @@ import ru.proit.dao.WorkerListDao;
 import ru.proit.dto.Page;
 import ru.proit.dto.PageParams;
 import ru.proit.dto.organization.OrganizationDto;
-import ru.proit.dto.organization.OrganizationTreeDto;
 import ru.proit.dto.worker.WorkerDto;
 import ru.proit.dto.worker.WorkerListDto;
 import ru.proit.dto.worker.WorkerParams;
@@ -166,6 +166,22 @@ public class WorkerServiceImpl implements WorkerService {
             getChildren(child);
         });
 
+    }
+
+    @Override
+    public Page<WorkerListDto> getAll(Integer orgIdd) {
+
+        val list = mappingService.mapList(workerDao.findAllActiveByOrgIdd(orgIdd), WorkerListDto.class);
+        return new Page<>(list, (long) list.size());
+    }
+
+    @Override
+    public WorkerDto getWorkerByIdd(Integer idd) {
+
+        Worker worker = workerDao.getActiveWorkerByIdd(idd);
+        if(worker == null) throw new EntityNotFoundException("Worker", idd);
+
+        return mappingService.map(worker);
     }
 
 

@@ -84,4 +84,10 @@ public class WorkerDaoImpl extends WorkerDao {
                 .fetchInto(Worker.class);
     }
 
+    public List<Worker> findAllActiveByOrgIdd(Integer orgIdd) {
+        return jooq.select(WORKER.fields())
+                .from(WORKER).where(WORKER.ORG_IDD.eq(orgIdd)
+                        .and(WORKER.DELETE_DATE.isNull()))
+                .fetchInto(Worker.class);
+    }
 }

@@ -13,6 +13,7 @@ import ru.proit.service.impl.OrganizationServiceImpl;
 
 import java.util.List;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping(value = "/org", produces = "application/json; charset=UTF-8")
 @AllArgsConstructor
@@ -23,6 +24,11 @@ public class OrganizationController {
     @PostMapping("/list")
     public Page<OrganizationListDto> getList(@RequestBody PageParams<OrganizationParams> pageParams){
         return orgService.getOrgsByParams(pageParams);
+    }
+
+    @GetMapping("/list/all")
+    public Page<OrganizationListDto> getAll(){
+        return orgService.getAll();
     }
 
     @PostMapping
@@ -45,4 +51,10 @@ public class OrganizationController {
     public List<OrganizationTreeDto> getOrgTree(){
         return orgService.getOrgTree();
     }
+
+    @GetMapping("/{idd}")
+    public OrganizationDto getOrgByIdd(@PathVariable("idd") Integer idd) {
+        return orgService.getOrgByIdd(idd);
+    }
+
 }

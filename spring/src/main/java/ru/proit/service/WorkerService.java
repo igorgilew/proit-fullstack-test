@@ -19,4 +19,8 @@ public interface WorkerService {
     void delete(Integer idd);
 
     List<WorkerTreeDto> getWorkersTree();
+
+    Page<WorkerListDto> getAll(Integer orgIdd);
+
+    WorkerDto getWorkerByIdd(Integer idd);
 }
