@@ -49,16 +49,16 @@ public class WorkerListDao {
     private SelectSeekStepN<Record> getWorkersSelect (WorkerParams params) {
         var condition = WORKER.DELETE_DATE.isNull();
 
-        if(params.getFirstName() != null){
+        if(params.getFirstName() != null && !params.getFirstName().isEmpty()){
             condition = condition.and(WORKER.FIRST_NAME.like(params.getFirstName()));
         }
 
-        if(params.getSecondName() != null){
+        if(params.getSecondName() != null && !params.getSecondName().isEmpty()){
             condition = condition.and(WORKER.SECOND_NAME.like(params.getSecondName()));
         }
 
 
-        if(params.getOrgName() != null){
+        if(params.getOrgName() != null && !params.getOrgName().isEmpty()){
             condition = condition.and(ORGANIZATION.NAME.like(params.getOrgName()));
 
             //condition = condition.or(ORGANIZATION.NAME.like(params.getOrgName()));

@@ -44,7 +44,7 @@ public class OrganizationListDao {
     private SelectSeekStepN<OrganizationRecord> getOrgSelect (OrganizationParams params) {
         var condition = ORGANIZATION.DELETE_DATE.isNull();
 
-        if(params.getName() != null){
+        if(params.getName() != null && !params.getName().isEmpty()){
             condition = condition.and(ORGANIZATION.NAME.like(params.getName()));
         }
 
